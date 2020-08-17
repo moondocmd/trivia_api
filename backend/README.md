@@ -88,10 +88,12 @@ GET '/categories'
 '6' : "Sports"}
 
 ```
+
 GET '/questions'
 - Fetches a paginated dictionary of all questions
 - Request Arguments (optional): page:int
 - Example Response: 
+```
 {
   "categories": {
     "1": "Science",
@@ -122,32 +124,35 @@ GET '/questions'
     "total_questions": 24
 }
 ```
+
 DELETE '/questions/<int:question_id>'
 - Deletes a single question
 - Request Arguments: question_id:int
 - Example Response:
+```
 {
   "deleted": 2,
   "status": 200,
   "success": true
 }
-
-
 ```
+
 POST '/questions'
 - Adds a new questions to the database
 - Request Arguments: question:string, answer:string, category:int, difficulty:int
 - Example Response:
+```
 {
   "created": 2, 
   "success": true
 }
 ```
-```
+
 POST '/questions/search'
 - Finds and returns all questions that match the search term
 - Request Arguments: searchTerm:string
 - Example Response for search keyword="title":
+```
 {
   "questions": [
     {
@@ -170,10 +175,12 @@ POST '/questions/search'
   "total_questions": 2
 }
 ```
+
 GET 'categories/<int:category_id>/questions'
 - Retrieves questions based on a given category
 - Request Arguments: category_id:int
 - Example Response:
+```
 {
   "current_category": 2,
   "questions": [
@@ -196,10 +203,12 @@ GET 'categories/<int:category_id>/questions'
   "total_questions": 5
 }
 ```
+
 POST '/quizzes'
 - Retrieves a random question from the database
 - Request Arguments: previous_questions:array, quiz_category:int
 - Example Response:
+```
 {
   "current_category": 4,
   "question": {
