@@ -88,7 +88,130 @@ GET '/categories'
 '6' : "Sports"}
 
 ```
+GET '/questions'
+- Fetches a paginated dictionary of all questions
+- Request Arguments (optional): page:int
+- Example Response: 
+{
+  "categories": {
+    "1": "Science",
+    "2": "Art",
+    "3": "Geography",
+    "4": "History",
+    "5": "Entertainment",
+    "6": "Sports"
+  },
+  "current_category": null,
+  "questions": [
+    {
+      "answer": "Apollo 13",
+      "category": 5,
+      "difficulty": 4,
+      "id": 2,
+      "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+    },
+    {
+      "answer": "Tom Cruise",
+      "category": 5,
+      "difficulty": 4,
+      "id": 4,
+      "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?"
+    },
+    ],
+    "success": true,
+    "total_questions": 24
+}
+```
+DELETE '/questions/<int:question_id>'
+- Deletes a single question
+- Request Arguments: question_id:int
+- Example Response:
+{
+  "deleted": 2,
+  "status": 200,
+  "success": true
+}
 
+
+```
+POST '/questions'
+- Adds a new questions to the database
+- Request Arguments: question:string, answer:string, category:int, difficulty:int
+- Example Response:
+{
+  "created": 2, 
+  "success": true
+}
+```
+```
+POST '/questions/search'
+- Finds and returns all questions that match the search term
+- Request Arguments: searchTerm:string
+- Example Response for search keyword="title":
+{
+  "questions": [
+    {
+      "answer": "Maya Angelou",
+      "category": 4,
+      "difficulty": 2,
+      "id": 5,
+      "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+    },
+    {
+      "answer": "Edward Scissorhands",
+      "category": 5,
+      "difficulty": 3,
+      "id": 6,
+      "question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?"
+    }
+  ],
+  "status": 200,
+  "success": true,
+  "total_questions": 2
+}
+```
+GET 'categories/<int:category_id>/questions'
+- Retrieves questions based on a given category
+- Request Arguments: category_id:int
+- Example Response:
+{
+  "current_category": 2,
+  "questions": [
+    {
+      "answer": "Escher",
+      "category": 2,
+      "difficulty": 1,
+      "id": 16,
+      "question": "Which Dutch graphic artist\u2013initials M C was a creator of optical illusions?"
+    },
+    {
+      "answer": "Mona Lisa",
+      "category": 2,
+      "difficulty": 3,
+      "id": 17,
+      "question": "La Giaconda is better known as what?"
+    }
+  ],
+  "success": true,
+  "total_questions": 5
+}
+```
+POST '/quizzes'
+- Retrieves a random question from the database
+- Request Arguments: previous_questions:array, quiz_category:int
+- Example Response:
+{
+  "current_category": 4,
+  "question": {
+    "answer": "Scarab",
+    "category": 4,
+    "difficulty": 4,
+    "id": 23,
+    "question": "Which dung beetle was worshipped by the ancient Egyptians?"
+  },
+  "success": true
+}
+```
 
 ## Testing
 To run the tests, run

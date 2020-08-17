@@ -21,7 +21,6 @@ def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
   setup_db(app)
-  #CORS(app)
   CORS(app, resources={r'*': {"origins": "*"}})
 
   '''
@@ -40,9 +39,8 @@ def create_app(test_config=None):
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
-  @app.route('/categories')
+  @app.route('/categories', methods=['GET'])
   def retrieve_categories():
-    print("RETRIEVING CATEGORIES!!!!")
     categories = Category.query.order_by(Category.type).all()
 
     if len(categories) == 0:
@@ -69,15 +67,14 @@ def create_app(test_config=None):
 
   @app.route('/questions', methods=['GET'])
   def retrieve_questions():
-    print("IM IN THE RETRIEVE Q's")
     selection = Question.query.order_by(Question.id).all()
     current_questions = paginate_questions(request, selection)
     categories = Category.query.order_by(Category.type).all()
 
     if len(current_questions) == 0:
       abort(404)
-    #print("WE got what we need! " + str(len(selection)) + " "+ str(current_questions))
-    return jsonify({  #Do i need to return status code?
+
+    return jsonify({  
       'success': True,
       'questions': current_questions,
       'total_questions': len(selection),
@@ -93,10 +90,8 @@ def create_app(test_config=None):
   '''
   @app.route('/questions/<int:question_id>', methods=['DELETE'])
   def delete_question(question_id):
-    print("IM TRYING TO DELETE: " + str(question_id))
     try:
       question = Question.query.filter(Question.id == question_id).one_or_none()
-      print("FUOND Q : " + str(question))
       if question is None:
         abort(404)
 
@@ -107,7 +102,6 @@ def create_app(test_config=None):
         'status': 200,
         'deleted': question_id
       })
-
     except:
       abort(422)
 
@@ -123,9 +117,7 @@ def create_app(test_config=None):
   '''
   @app.route('/questions', methods=['POST'])
   def create_question():
-    print("INSERTING")
     body = request.get_json()
-
     new_question = body.get('question', None)
     new_answer = body.get('answer', None)
     new_category = body.get('category', None)
@@ -134,7 +126,6 @@ def create_app(test_config=None):
     try:
       question = Question(question=new_question, answer=new_answer, category=new_category, difficulty=new_difficulty)
       question.insert()
-      print("INSERTED!")
       return jsonify({
         'success': True,
         'question': question.question
@@ -151,21 +142,16 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
-  #@app.route('/questions/search', methods=['OPTIONS','POST'])
   @app.route('/questions/search', methods=['POST'])
   def search_questions():
-      # if not request.method == 'POST':
-      #     abort(405)
       data = request.get_json()
       search_term = data.get('searchTerm', None)
-      print("SEARCHING FOR: "+ str(search_term))
       if not search_term:
           abort(404)
       try:
           questions = Question.query.filter(
               Question.question.ilike('%{}%'.format(search_term))).all()
 
-          #paginated_questions = paginate_questions(request, questions)
           return jsonify({
               'success': True,
               'status': 200,
@@ -185,14 +171,10 @@ def create_app(test_config=None):
   '''
   @app.route('/categories/<int:category_id>/questions', methods=['GET'])
   def get_questions(category_id):
-    print("LOOKING FOR " + str(category_id))
-
     try:
-      questions = Question.query.filter(Question.category == str(category_id)).all()
+      questions = Question.query.filter(Question.category == category_id).all()
       if questions is None:
         abort(404)
-      #current_questions = paginate_questions(request, questions)  CHANGED THIS, REVERT IF NEEDED
-      #print(current_questions)
       return jsonify({
         'success': True,
         'current_category': category_id,
@@ -215,33 +197,26 @@ def create_app(test_config=None):
   '''
   @app.route('/quizzes', methods=['POST'])
   def send_quiz_data():
-    print("LETS QUIZ!")
     data = request.get_json()
     category = data.get('quiz_category', None)
     previous_questions = data.get('previous_questions', None) 
 
-    print("searched for " + str(category))
-    print("previous q's : " + str(previous_questions))
     try:
-      #questions = Question.query.filter(Question.category == str(category)).all()
       if category != 0:
-        questions = Question.query.filter(Question.category == str(category)).filter(Question.id.notin_((previous_questions))).all()
+        questions = Question.query.filter(Question.category == category).filter(Question.id.notin_((previous_questions))).all()
       else:
         questions = Question.query.filter(Question.id.notin_((previous_questions))).all()
-      #print("HERE ARE THE Q's: " + str(questions))
+
       if questions is None:
         abort(404)
-        
-      current_questions = paginate_questions(request, questions)
-      random_q = random.choice(current_questions)
-      print("WEVE GOT A RANDOM Q " + str(random_q))
+
+      random_q = random.choice(paginate_questions(request, questions))
       return jsonify({
         'success': True,
         'current_category': category, #is this needed?
         'question': random_q,
       })
     except:
-      print("NO QUESTION AVAILABLE! - ABORTING")
       abort(422)
 
   '''
