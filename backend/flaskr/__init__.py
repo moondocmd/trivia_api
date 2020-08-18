@@ -9,7 +9,7 @@ from models import setup_db, Question, Category
 QUESTIONS_PER_PAGE = 10
 def paginate_questions(request, selection):
   page = request.args.get('page', 1, type=int)
-  start =  (page - 1) * QUESTIONS_PER_PAGE
+  start = (page - 1) * QUESTIONS_PER_PAGE
   end = start + QUESTIONS_PER_PAGE
 
   questions = [question.format() for question in selection]
@@ -102,7 +102,7 @@ def create_app(test_config=None):
         'status': 200,
         'deleted': question_id
       })
-    except:
+    except Exception:
       abort(422)
 
   '''
@@ -117,20 +117,19 @@ def create_app(test_config=None):
   '''
   @app.route('/questions', methods=['POST'])
   def create_question():
-    body = request.get_json()
-    new_question = body.get('question', None)
-    new_answer = body.get('answer', None)
-    new_category = body.get('category', None)
-    new_difficulty = body.get('difficulty', None)
-
     try:
+      body = request.get_json()
+      new_question = body.get('question', None)
+      new_answer = body.get('answer', None)
+      new_category = body.get('category', None)
+      new_difficulty = body.get('difficulty', None)
       question = Question(question=new_question, answer=new_answer, category=new_category, difficulty=new_difficulty)
       question.insert()
       return jsonify({
         'success': True,
         'question': question.question
       })
-    except:
+    except Exception:
       abort(422)
   '''
   @TODO: 
@@ -144,11 +143,11 @@ def create_app(test_config=None):
   '''
   @app.route('/questions/search', methods=['POST'])
   def search_questions():
-      data = request.get_json()
-      search_term = data.get('searchTerm', None)
-      if not search_term:
-          abort(404)
       try:
+          data = request.get_json()
+          search_term = data.get('searchTerm', None)
+          if not search_term:
+            abort(404)
           questions = Question.query.filter(
               Question.question.ilike('%{}%'.format(search_term))).all()
 
@@ -158,7 +157,7 @@ def create_app(test_config=None):
               'questions': paginate_questions(request, questions),
               'total_questions': len(questions)
           })
-      except:
+      except Exception:
           abort(404)
 
   '''
@@ -181,7 +180,7 @@ def create_app(test_config=None):
         'questions': paginate_questions(request, questions),
         'total_questions': len(questions)
       })
-    except:
+    except Exception:
       abort(422)
 
   '''
@@ -197,11 +196,11 @@ def create_app(test_config=None):
   '''
   @app.route('/quizzes', methods=['POST'])
   def send_quiz_data():
-    data = request.get_json()
-    category = data.get('quiz_category', None)
-    previous_questions = data.get('previous_questions', None) 
-
     try:
+      data = request.get_json()
+      category = data.get('quiz_category', None)
+      previous_questions = data.get('previous_questions', None)
+
       if category != 0:
         questions = Question.query.filter(Question.category == category).filter(Question.id.notin_((previous_questions))).all()
       else:
@@ -210,13 +209,14 @@ def create_app(test_config=None):
       if questions is None:
         abort(404)
 
-      random_q = random.choice(paginate_questions(request, questions))
+      random_q = random.choice(paginate_questions(request, questions)) if len(questions) > 0 else ''
+
       return jsonify({
         'success': True,
         'current_category': category, #is this needed?
-        'question': random_q,
+        'question': random_q
       })
-    except:
+    except Exception:
       abort(422)
 
   '''
